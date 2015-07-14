@@ -155,6 +155,16 @@ public class ImportOrderCheck
     private boolean beforeFirstImport;
     /** Whether static imports should be sorted alphabetically or not. */
     private boolean sortStaticImportsAlphabetically;
+    /** Whether static import groups should be separated. */
+    private boolean staticImportsSeparated;
+
+    public boolean isStaticImportsSeparated() {
+        return staticImportsSeparated;
+    }
+
+    public void setStaticImportsSeparated(boolean staticImportsSeparated) {
+        this.staticImportsSeparated = staticImportsSeparated;
+    }
 
     /**
      * Groups static imports under each group.
@@ -337,7 +347,7 @@ public class ImportOrderCheck
         if (groupIdx > lastGroup) {
             // This check should be made more robust to handle
             // comments and imports that span more than one line.
-            if (!beforeFirstImport && separated && line - lastImportLine < 2) {
+            if (isSeparationViolated(isStatic, line)) {
                 log(line, MSG_SEPARATION, name);
             }
         }
@@ -351,6 +361,11 @@ public class ImportOrderCheck
 
         lastGroup = groupIdx;
         lastImport = name;
+    }
+
+    private boolean isSeparationViolated(boolean isStatic, int line) {
+        return !beforeFirstImport && (!isStatic && separated || isStatic && staticImportsSeparated)
+                && line - lastImportLine < 2;
     }
 
     /**
